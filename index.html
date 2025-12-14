@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Voice 126; Text (Simple)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; max-width:800px; margin:28px auto; padding:0 16px; }
+    h1 { font-size:20px; margin-bottom:6px; }
+    .controls { margin:12px 0; }
+    button { margin-right:8px; padding:8px 12px; }
+    #transcript { white-space: pre-wrap; border:1px solid #ddd; padding:12px; min-height:140px; background:#fafafa; }
+    #status { color:#666; margin-top:8px; }
+    label { margin-right:12px; }
+    select,input[type="checkbox"] { margin-left:6px; margin-right:6px; }
+  </style>
+</head>
+<body>
+  <h1>Voice 126; Text (Web Speech API)</h1>
+
+  <div class="controls">
+    <label>Language:
+      <select id="lang">
+        <option value="en-US">English (US)</option>
+        <option value="en-GB">English (UK)</option>
+        <option value="es-ES">Spanish</option>
+        <option value="fr-FR">French</option>
+        <option value="auto">Auto</option>
+      </select>
+    </label>
+
+    <label><input id="continuous" type="checkbox" checked> continuous</label>
+    <label><input id="interim" type="checkbox" checked> show interim</label>
+  </div>
+
+  <div class="controls">
+    <button id="start">Start</button>
+    <button id="stop" disabled>Stop</button>
+    <button id="copy">Copy</button>
+    <button id="download">Download</button>
+    <button id="clear">Clear</button>
+  </div>
+
+  <div id="status">Ready.</div>
+
+  <h3>Transcript</h3>
+  <div id="transcript" aria-live="polite"></div>
+
+  <script>
+    const startBtn = document.getElementById('start');
+    const stopBtn = document.getElementById('stop');
+    const copyBtn = document.getElementById('copy');
+    const downloadBtn = document.getElementById('download');
+    const clearBtn = document.getElementById('clear');
+    const transcriptEl = document.getElementById('transcript');
+    const statusEl = document.getElementById('status');
+    const langSel = document.getElementById('lang');
+    const continuousCb = document.getElementById('continuous');
+    const interimCb = document.getElementById('interim');
+
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      statusEl.textContent = 'Web Speech API not supported in this browser. Use Chrome (desktop) for best results.';
+      startBtn.disabled = true;
+    } else {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let rec = null;
+      let finalTranscript = '';
+
+      function createRecognizer() {
+        rec = new SpeechRecognition();
+        if (langSel.value !== 'auto') rec.lang = langSel.value;
+        rec.continuous = continuousCb.checked;
+        rec.interimResults = interimCb.checked;
+
+        rec.onstart = () => { statusEl.textContent = 'Listening...'; };
+        rec.onerror = (e) => {
+          statusEl.textContent = 'Error: ' + (e.error || e.message || 'unknown');
+        };
+        rec.onend = () => {
+          statusEl.textContent = 'Stopped.';
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+        };
+        rec.onresult = (e) => {
+          let interim = '';
+          for (let i = e.resultIndex; i < e.results.length; ++i) {
+            const r = e.results[i];
+            if (r.isFinal) finalTranscript += r[0].transcript;
+            else interim += r[0].transcript;
+          }
+          transcriptEl.textContent = finalTranscript + (interim ? '\n\n(interim) ' + interim : '');
+        };
+      }
+
+      startBtn.addEventListener('click', async () => {
+        try {
+          await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+          statusEl.textContent = 'Microphone access denied.';
+          return;
+        }
+        finalTranscript = '';
+        createRecognizer();
+        try {
+          rec.start();
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        } catch (err) {
+          statusEl.textContent = 'Failed to start: ' + (err.message || err);
+        }
+      });
+
+      stopBtn.addEventListener('click', () => {
+        if (rec) rec.stop();
+      });
+
+      copyBtn.addEventListener('click', async () => {
+        try {
+          const text = transcriptEl.textContent || '';
+          await navigator.clipboard.writeText(text);
+          statusEl.textContent = 'Copied to clipboard.';
+        } catch {
+          statusEl.textContent = 'Copy failed (clipboard permission).';
+        }
+      });
+
+      downloadBtn.addEventListener('click', () => {
+        const data = transcriptEl.textContent || '';
+        const blob = new Blob([data], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transcript.txt';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        statusEl.textContent = 'Downloaded transcript.';
+      });
+
+      clearBtn.addEventListener('click', () => {
+        finalTranscript = '';
+        transcriptEl.textContent = '';
+        statusEl.textContent = 'Cleared.';
+      });
+    }
+  </script>
+</body>
+</html>
