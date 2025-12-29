@@ -1,0 +1,29 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Node / JS
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Expo / React Native
+.expo/
+*.jks
+*.p12
+*.key
+*.mobileprovision
+
+# OS
+.DS_Store
+
+# Application Data
+uploads/
+temp/
+mobile-app/.expo/

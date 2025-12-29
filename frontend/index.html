@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEP Agent</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -14,48 +16,64 @@
         </header>
 
         <main>
-            <form id="reportForm">
-                <div class="form-group">
-                    <label for="image">Capture/Upload Image</label>
-                    <input type="file" id="image" name="image" accept="image/*" required>
-                    <div id="image-preview" class="preview-box"></div>
-                </div>
+            <!-- Step 1: Upload -->
+            <div id="step-upload">
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="image">Capture/Upload Image</label>
+                        <input type="file" id="image" name="image" accept="image/*" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="audio">Voice Note</label>
-                    <input type="file" id="audio" name="audio" accept="audio/*" capture="microphone" required>
-                    <div id="audio-preview" class="preview-box"></div>
-                </div>
+                    <div class="form-group">
+                        <label for="audio">Voice Note</label>
+                        <input type="file" id="audio" name="audio" accept="audio/*" capture="microphone" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="email">Recipient Email</label>
-                    <input type="email" id="email" name="email" placeholder="supervisor@example.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="subject">Subject</label>
-                    <input type="text" id="subject" name="subject" value="MEP Field Report" required>
-                </div>
+                    <button type="submit" id="uploadBtn">Upload & Transcribe</button>
+                </form>
+            </div>
 
-                <button type="submit" id="submitBtn">Process & Send</button>
-            </form>
-
+            <!-- Loading Status -->
             <div id="status" class="status-container hidden">
                 <div class="loader"></div>
                 <p id="status-text">Processing...</p>
             </div>
 
+            <!-- Step 2: Review & Send -->
+            <div id="step-review" class="hidden">
+                <h3>Review Report</h3>
+
+                <div class="form-group">
+                    <label for="transcript">Transcription</label>
+                    <textarea id="transcript" rows="10" class="w-full p-2 border rounded"></textarea>
+                    <div class="btn-group">
+                        <button type="button" id="refineBtn" class="secondary-btn">✨ Refine with AI</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Recipient Email</label>
+                    <input type="email" id="email" placeholder="supervisor@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" value="MEP Field Report" required>
+                </div>
+
+                <button id="sendBtn">Send Report</button>
+                <button id="cancelBtn" class="text-btn">Cancel</button>
+            </div>
+
+            <!-- Success Result -->
             <div id="result" class="result-container hidden">
                 <h3>Success!</h3>
                 <p>Report sent successfully.</p>
-                <div class="transcript-box">
-                    <h4>Transcription:</h4>
-                    <p id="transcript-text"></p>
-                </div>
                 <button id="resetBtn" class="secondary-btn">New Report</button>
             </div>
         </main>
     </div>
     <script src="/static/script.js"></script>
 </body>
+
 </html>

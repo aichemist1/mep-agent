@@ -123,14 +123,20 @@ button:disabled {
     border-top: 4px solid var(--primary-color);
     width: 30px;
     height: 30px;
-    -webkit-animation: spin 1s linear infinite; /* Safari */
+    -webkit-animation: spin 1s linear infinite;
+    /* Safari */
     animation: spin 1s linear infinite;
     margin: 0 auto 10px;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Results */
@@ -153,8 +159,34 @@ button:disabled {
     border: 1px solid var(--border-color);
 }
 
-.transcript-box h4 {
-    font-size: 0.9rem;
+/* Review Step */
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.text-btn {
+    background: none;
+    border: none;
     color: #6b7280;
-    margin-bottom: 5px;
+    margin-top: 10px;
+    width: auto;
+    font-weight: normal;
+}
+
+.text-btn:hover {
+    text-decoration: underline;
+    background: none;
+    color: var(--text-color);
 }
